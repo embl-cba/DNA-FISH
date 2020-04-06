@@ -10,6 +10,14 @@ A Fiji plugin to analyse images with FISH spots.
 
 From TrackMate help: https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors
 
+## Manual region selection
+
+Using ImageJ's point selection tool one marks regions in which FISH spots should be analyzed (see below). It is *not important* to place these points very exactly, because the algorithm will just use them to identify the region in which is should analyse the FISH spots (see below). 
+
+## Analyze spots
+
+Upon pressing the **[ Analyze spots ]** button (fka "Analyze regions"), the plugin will, for each of the manually selected points, find the *closest* spot in each channel, measure its position and measure the distances between the spots in the different channels. 
+
 ### TrackMate_DoG
 
 Given d an approximate expected particle diameter, determined upon inspection, two gaussian filters are produced with standard deviation σ₁ and σ₂:
