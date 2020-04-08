@@ -6,6 +6,10 @@ A Fiji plugin to analyse images with FISH spots.
 
 ## Usage
 
+## Channel setup
+
+...
+
 ## Spot position measurement
 
 From TrackMate help: https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors
