@@ -32,8 +32,8 @@ public class SegmentationOverlay implements ImageListener {
     HyperStackDisplayer hyperStackDisplayer;
 
     public SegmentationOverlay(ImagePlus imp,
-                                    SegmentationResults segmentationResults,
-                                    SegmentationSettings segmentationSettings)
+                               SegmentationResults segmentationResults,
+                               SegmentationSettings segmentationSettings)
 
     {
         this.imp = imp;
@@ -43,15 +43,13 @@ public class SegmentationOverlay implements ImageListener {
         activeChannels = new boolean[imp.getNChannels()];
         for ( int i = 0; i < activeChannels.length; i++ )
         {
-            activeChannels[i] = true;
+            activeChannels[ i ] = true;
         }
         ImagePlus.addImageListener(this);
-
     }
 
     public void highlightNClosestSpotsOfActiveChannels(Spot location, int n, int frame)
     {
-
         selectionModel.clearSpotSelection();
 
         for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
@@ -77,7 +75,6 @@ public class SegmentationOverlay implements ImageListener {
 
     public void setTrackMateOverlayFromTable()
     {
-
         modelSelectedChannels = new Model();
         modelSelectedChannels.setLogger(Logger.IJ_LOGGER);
         Settings settings = new Settings();
@@ -239,7 +236,6 @@ public class SegmentationOverlay implements ImageListener {
 
     public void updateActiveChannels()
     {
-
         if( imp == IJ.getImage() )
         {
             boolean updateView = false;

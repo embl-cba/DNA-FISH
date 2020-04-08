@@ -31,7 +31,8 @@ public class SegmentationAnalyzer< T extends RealType< T >>
     SegmentationSettings segmentationSettings;
     SegmentationResults segmentationResults;
 
-    public SegmentationAnalyzer( ImagePlus imp, SegmentationSettings segmentationSettings,
+    public SegmentationAnalyzer( ImagePlus imp,
+                                 SegmentationSettings segmentationSettings,
                                  SegmentationResults segmentationResults)
     {
         this.imp = imp;
@@ -101,10 +102,7 @@ public class SegmentationAnalyzer< T extends RealType< T >>
 
                 if ( spot != null ) {
 
-                    // Compute center of mass
-                    //
                     Spot spotCenterOfMass = computeCenterOfMass(spot, iChannel, segmentationSettings.backgrounds[iChannel]);
-
 
                     // Add position to jTableSpots
                     //

@@ -23,7 +23,8 @@ public class Segmenter
                 || segmentationSettings.method.equals( SegmentationSettings.TRACKMATEDOGSUBPIXEL) )
         {
 
-            segmentationResults = segmentUsingTrackMate(imp,
+            segmentationResults = segmentUsingTrackMate(
+                    imp,
                     segmentationResults,
                     segmentationSettings);
         }
@@ -36,9 +37,10 @@ public class Segmenter
     }
 
 
-    private static SegmentationResults segmentUsingTrackMate(ImagePlus imp,
-                                                             SegmentationResults segmentationResults,
-                                                             SegmentationSettings segmentationSettings)
+    private static SegmentationResults segmentUsingTrackMate(
+            ImagePlus imp,
+            SegmentationResults segmentationResults,
+            SegmentationSettings segmentationSettings)
     {
         // Remember the actual calibration, because we'll temporarily remove/change it
         //
@@ -66,7 +68,6 @@ public class Segmenter
             // TrackMate settings
             Settings settings = new Settings();
             settings.detectorFactory = new DogDetectorFactory<>();
-
 
             // Check if there was a ROI
             // Not necessary, seems to be done automatically by TrackMate
@@ -98,13 +99,13 @@ public class Segmenter
             settings.detectorSettings = settings.detectorFactory.getDefaultSettings();
             settings.detectorSettings.put(DetectorKeys.KEY_TARGET_CHANNEL, segmentationSettings.channels[iChannel]); //one-based
 
-            if( segmentationSettings.method.equals( SegmentationSettings.TRACKMATEDOGSUBPIXEL))
+            if( segmentationSettings.method.equals(SegmentationSettings.TRACKMATEDOGSUBPIXEL))
             {
                 settings.detectorSettings.put(DetectorKeys.KEY_DO_SUBPIXEL_LOCALIZATION, true);
             }
-            else if( segmentationSettings.method.equals( SegmentationSettings.TRACKMATEDOG))
+            else if( segmentationSettings.method.equals(SegmentationSettings.TRACKMATEDOG))
             {
-                settings.detectorSettings.put(DetectorKeys.KEY_DO_SUBPIXEL_LOCALIZATION, true);
+                settings.detectorSettings.put(DetectorKeys.KEY_DO_SUBPIXEL_LOCALIZATION, false);
             }
 
             settings.detectorSettings.put(DetectorKeys.KEY_RADIUS, 1.0); // because we rather calibrate the image accordingly

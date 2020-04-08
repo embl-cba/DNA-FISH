@@ -5,6 +5,9 @@ import ij.ImagePlus;
 import ij.plugin.PlugIn;
 
 import javax.swing.*;
+import java.util.ArrayList;
+
+import static de.embl.cba.fish.ChannelConfigDialog.*;
 
 /**
  * Created by tischi on 24/03/17.
@@ -12,48 +15,32 @@ import javax.swing.*;
 public class AnalyzeFISHSpotsPlugIn implements PlugIn {
 
     ImagePlus imp;
-    AnalyzeFISHSpotsGUI analyzeFISHSpotsGUI;
+    AnalyzeFISHSpotsUI analyzeFISHSpotsUI;
 
-    public AnalyzeFISHSpotsPlugIn( ) {
+    public AnalyzeFISHSpotsPlugIn()
+    {
     }
 
-    public AnalyzeFISHSpotsPlugIn(String path) {
-        this();
+    public AnalyzeFISHSpotsPlugIn( String path) {
         IJ.open(path);
+        this.imp = IJ.getImage();
     }
 
     public void run(String arg) {
-        this.imp = IJ.getImage();
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                showDialog();
-            }
-        });
+        if ( imp == null )
+            this.imp = IJ.getImage();
+
+        final ArrayList< ChannelType > channelTypes = showChannelConfigDialog();
+        showAnalysisUI( channelTypes );
     }
 
-    public void showDialog(){
-        analyzeFISHSpotsGUI = new AnalyzeFISHSpotsGUI();
-        analyzeFISHSpotsGUI.showDialog();
-    }
-
-    public static String getChannelFlag(int iChannel)
+    private ArrayList< ChannelType > showChannelConfigDialog()
     {
-        String key = "Analyze Channel " + (iChannel + 1);
-        return key;
+        return new ChannelConfigDialog( imp ).getChannelTypesDialog();
     }
 
-    public static String getSpotThresholdKey(int iChannel)
-    {
-        String key = "Spot Threshold Channel " + (iChannel + 1);
-        return key;
+    private void showAnalysisUI( ArrayList< ChannelType > channelTypes ){
+        analyzeFISHSpotsUI = new AnalyzeFISHSpotsUI( channelTypes );
+        analyzeFISHSpotsUI.showDialog();
     }
-
-    public static String getSpotRadiiKey(int iChannel)
-    {
-        String key = "Spot Radii Channel " + (iChannel + 1);
-        return key;
-    }
-
-
-
 }

@@ -15,7 +15,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+
+import static de.embl.cba.fish.ChannelConfigDialog.*;
 
 
 // Notes:
@@ -28,10 +32,16 @@ import java.util.ArrayList;
 // Ideas:
 // - maybe bin the data in z to have it isotropic in terms sigmas?
 
-public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
+public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
 
+    public static final String SPOT_RADII_DEFAULT = "1.5,1.5,3";
+    public static final String SPOT_THRESHOLD_DEFAULT = "200";
+    private final ArrayList< ChannelType > channelTypes;
     // GUI
     JFrame frame;
+
+    final String buttonHelpText = "Help";
+    JButton buttonHelp =  new JButton();
 
     final String buttonSegmentSpotsText = "Find spots";
     JButton buttonSegmentSpots =  new JButton();
@@ -39,8 +49,8 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
     final String buttonShowSpotsText = "Show spots";
     JButton buttonShowSpots =  new JButton();
 
-    final String buttonAnalyzeSelectedRegionsText = "Analyze selected regions";
-    JButton buttonAnalyzeSelectedRegions =  new JButton();
+    final String buttonAnalyzeSpotsAroundSelectedRegionsText = "Analyze spots";
+    JButton buttonAnalyzeSpotsAroundSelectedRegions =  new JButton();
 
     final String buttonSaveTableText = "Save table";
     JButton buttonSaveTable =  new JButton();
@@ -51,7 +61,7 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
     final String buttonLogColumnAverageText = "Log column averages";
     JButton buttonLogColumnAverage =  new JButton();
 
-    final String textFieldChannelsLabel = "Channel IDs [one-based]";
+    final String textFieldChannelsLabel = "Spots channels [one-based]";
     JTextField textFieldChannels = new JTextField(12);
 
     final String textFieldSpotRadiiLabel = "Spot radii [pixels]";
@@ -79,16 +89,19 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
     JTextField textFieldFileName = new JTextField(15);
 
     final String comboBoxSegmentationMethodLabel = "Segmentation method";
-    JComboBox comboBoxSegmentationMethod = new JComboBox(new String[] { SegmentationSettings.TRACKMATEDOG}); //, Utils.TRACKMATEDOGSUBPIXEL, Utils.IMAGESUITE3D
+    JComboBox comboBoxSegmentationMethod = new JComboBox(new String[] { SegmentationSettings.TRACKMATEDOGSUBPIXEL, SegmentationSettings.TRACKMATEDOG});
 
     SegmentationResults segmentationResults = new SegmentationResults();
     SegmentationSettings segmentationSettings = new SegmentationSettings();
     SegmentationOverlay segmentationOverlay;
 
     ImagePlus imp;
+    private final long numFISHChannels;
 
-    public AnalyzeFISHSpotsGUI( )
+    public AnalyzeFISHSpotsUI( ArrayList< ChannelType > channelTypes )
     {
+        this.channelTypes = channelTypes;
+        numFISHChannels = channelTypes.stream().filter( x -> x.equals( ChannelType.FISHSpots ) ).count();
     }
 
     public void showDialog()
@@ -106,20 +119,23 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
         ArrayList<JPanel> panels = new ArrayList<JPanel>();
         int iPanel = 0;
 
+        // Help
+        //
+        addButton(panels, iPanel++, c, buttonHelp, buttonHelpText);
+
         // Spot detection
         //
         addHeader(panels, iPanel++, c, "SPOT DETECTION");
-        addComboBox(panels, iPanel++, c, comboBoxSegmentationMethod, comboBoxSegmentationMethodLabel);
-        addTextField(panels, iPanel++, c, textFieldChannels, textFieldChannelsLabel, "2;3;4");
-        addTextField(panels, iPanel++, c, textFieldSpotRadii, textFieldSpotRadiiLabel, "1.5,1.5,3;1.5,1.5,3;1.5,1.5,3");
-        addTextField(panels, iPanel++, c, textFieldSpotThresholds, textFieldSpotThresholdsLabel, "200;200;200");
+        addComboBox(panels, iPanel++, c, comboBoxSegmentationMethod, comboBoxSegmentationMethodLabel);  // Do not show as there is only one choice
+        addTextField(panels, iPanel++, c, textFieldSpotRadii, textFieldSpotRadiiLabel, getSpotRadiiDefaults() );
+        addTextField(panels, iPanel++, c, textFieldSpotThresholds, textFieldSpotThresholdsLabel, getSpotTresholdDefaults() );
         addButton(panels, iPanel++, c, buttonSegmentSpots, buttonSegmentSpotsText);
 
         // Spot analysis
         //
         addHeader(panels, iPanel++, c, "SPOT ANALYSIS");
         addTextField(panels, iPanel++, c, textFieldSpotBackgroundValues, textFieldSpotBackgroundValuesLabel, "100;300;300");
-        addButton(panels, iPanel++, c, buttonAnalyzeSelectedRegions, buttonAnalyzeSelectedRegionsText);
+        addButton(panels, iPanel++, c, buttonAnalyzeSpotsAroundSelectedRegions, buttonAnalyzeSpotsAroundSelectedRegionsText );
 
         // Table
         //
@@ -140,21 +156,152 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
         frame.setVisible(true);
     }
 
+    // TODO: Read from Preferences
+    private String getSpotRadiiDefaults()
+    {
+        String defaults = "";
+        for ( int i = 0; i < numFISHChannels; i++ )
+        {
+            if ( i > 0 ) defaults += ";";
+            defaults += SPOT_RADII_DEFAULT;
+        }
+        return defaults;
+    }
+
+    // TODO: Read from Preferences
+    private String getSpotTresholdDefaults()
+    {
+        String defaults = "";
+        for ( int i = 0; i < numFISHChannels; i++ )
+        {
+            if ( i > 0 ) defaults += ";";
+            defaults += SPOT_THRESHOLD_DEFAULT;
+        }
+        return defaults;
+    }
+
     public void actionPerformed(ActionEvent e)
     {
-        // update current imp object
         imp = IJ.getImage();
 
-        // update segmentationSettings
+        updateSegmentationSettings();
+
+        if ( e.getActionCommand().equals( buttonHelpText ) )
+        {
+            showHelp();
+        }
+        else if ( e.getActionCommand().equals( buttonSegmentSpotsText ) )
+        {
+            segmentSpotsAction();
+            initRoiManager();
+        }
+        else if ( e.getActionCommand().equals( buttonAnalyzeSpotsAroundSelectedRegionsText ) )
+        {
+            analyzeSelectedSpotsAction();
+        }
+        else if ( e.getActionCommand().equals( buttonLogColumnAverageText ) )
+        {
+            segmentationResults.SpotsTable.logColumnAverages();
+        }
+        else if ( e.getActionCommand().equals( buttonSaveTableText ) )
+        {
+            saveTableAction();
+        }
+        else  if ( e.getActionCommand().equals( buttonLoadTableText ) )
+        {
+            loadTableAction();
+        }
+    }
+
+    private void showHelp()
+    {
+        try
+        {
+            Utils.openUrl( "https://github.com/tischi/fiji-plugin-FISH/blob/master/README.md#usage" );
+        } catch ( IOException e )
+        {
+            e.printStackTrace();
+        } catch ( URISyntaxException e )
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadTableAction()
+    {
+        // Load Table
+        //
+        JFileChooser jFileChooser = new JFileChooser(segmentationSettings.pathName);
+        if (jFileChooser.showOpenDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
+            File file = jFileChooser.getSelectedFile();
+            if ( file != null )
+            {
+                // load and show jTableSpots
+                //
+                segmentationResults.SpotsTable = new SpotsTable();
+                segmentationResults.SpotsTable.loadTable(file);
+                segmentationResults.SpotsTable.showTable();
+
+                // construct overlay from jTableSpots
+                //
+                //segmentationResults.jTableSpots.segmentationOverlay = segmentationOverlay;
+            }
+            else
+            {
+                Utils.threadlog("No file selected.");
+            }
+        }
+    }
+
+    private void saveTableAction()
+    {
+        // Save Table
+        //
+        JFileChooser jFileChooser = new JFileChooser(segmentationSettings.pathName);
+        if (jFileChooser.showSaveDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
+            File file = jFileChooser.getSelectedFile();
+            segmentationResults.SpotsTable.saveTable(file);
+        }
+    }
+
+    private void analyzeSelectedSpotsAction()
+    {
+        // Check the ROI Manager for selected points
+        //
+        // ....
+
+        // Measure spots around selected points
+        //
+        SegmentationAnalyzer segmentationAnalyzer =
+                new SegmentationAnalyzer(imp, segmentationSettings, segmentationResults);
+
+        SpotCollection selectedPoints = getSelectedPointsFromRoiManager();
+
+        segmentationAnalyzer.analyzeSpotsAroundSelectedPoints( selectedPoints );
+
+
+        // Show results jTableSpots
+        //
+        segmentationResults.SpotsTable.showTable();
+
+        // Notify jTableSpots about overlay (such that it can change it, upon selection of a specific row)
+        //
+        segmentationResults.SpotsTable.segmentationOverlay = segmentationOverlay;
+    }
+
+    private void updateSegmentationSettings()
+    {
         segmentationSettings.frames = null;
         segmentationSettings.channels = Utils.delimitedStringToIntegerArray(textFieldChannels.getText(), ";");
         segmentationSettings.channelIDs = textFieldChannels.getText();
         segmentationSettings.spotRadii = new double[segmentationSettings.channels.length][];
+
         String[] spotRadii = textFieldSpotRadii.getText().split(";");
         for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
         {
             segmentationSettings.spotRadii[iChannel] = Utils.delimitedStringToDoubleArray(spotRadii[iChannel], ",");
         }
+
         segmentationSettings.backgrounds = Utils.delimitedStringToDoubleArray(textFieldSpotBackgroundValues.getText()
                 , ";");
         segmentationSettings.thresholds = Utils.delimitedStringToDoubleArray(textFieldSpotThresholds.getText(), ";");
@@ -164,120 +311,42 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
         segmentationSettings.method = (String) comboBoxSegmentationMethod.getSelectedItem();
         segmentationSettings.pathName = imp.getOriginalFileInfo().directory; // textFieldPathName.getText();
         segmentationSettings.fileName = imp.getOriginalFileInfo().fileName; // textFieldFileName.getText();
-
-
-        if ( e.getActionCommand().equals(buttonSegmentSpotsText) )
-        {
-            segmentSpotsAction();
-        }
-
-        if ( e.getActionCommand().equals(buttonAnalyzeSelectedRegionsText) )
-        {
-            // Check the ROI Manager for selected points
-            //
-            // ....
-
-            // Measure spots around selected points
-            //
-            SegmentationAnalyzer segmentationAnalyzer = new SegmentationAnalyzer(imp, segmentationSettings, segmentationResults);
-
-            SpotCollection selectedPoints = getSpotCollectionFromRoiManager();
-
-            segmentationAnalyzer.analyzeSpotsAroundSelectedPoints(selectedPoints);
-
-
-            // Show results jTableSpots
-            //
-            segmentationResults.SpotsTable.showTable();
-
-            // Notify jTableSpots about overlay (such that it can change it, upon selection of a specific row)
-            //
-            segmentationResults.SpotsTable.segmentationOverlay = segmentationOverlay;
-        }
-
-        if ( e.getActionCommand().equals(buttonLogColumnAverageText) )
-        {
-            // Print average values of all columns to log window
-            //
-            segmentationResults.SpotsTable.logColumnAverages();
-        }
-
-        if ( e.getActionCommand().equals(buttonSaveTableText))
-        {
-
-            // Save Table
-            //
-            JFileChooser jFileChooser = new JFileChooser(segmentationSettings.pathName);
-            if (jFileChooser.showSaveDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
-                File file = jFileChooser.getSelectedFile();
-                segmentationResults.SpotsTable.saveTable(file);
-            }
-
-        }
-
-
-        if ( e.getActionCommand().equals(buttonLoadTableText))
-        {
-
-            // Load Table
-            //
-            JFileChooser jFileChooser = new JFileChooser(segmentationSettings.pathName);
-            if (jFileChooser.showOpenDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
-                File file = jFileChooser.getSelectedFile();
-                if ( file != null )
-                {
-                    // load and show jTableSpots
-                    //
-                    segmentationResults.SpotsTable = new SpotsTable();
-                    segmentationResults.SpotsTable.loadTable(file);
-                    segmentationResults.SpotsTable.showTable();
-
-                    // construct overlay from jTableSpots
-                    //
-                    //segmentationResults.jTableSpots.segmentationOverlay = segmentationOverlay;
-                }
-                else
-                {
-                    Utils.threadlog("No file selected.");
-                }
-
-            }
-
-        }
-
     }
 
     private void segmentSpotsAction()
     {
         // Segment
         //
-        segmentationResults = Segmenter.run(imp,
+        segmentationResults = Segmenter.run(
+                imp,
                 segmentationResults,
                 segmentationSettings);
 
         // Construct and show overlay
         //
-        segmentationOverlay = new SegmentationOverlay(imp,
+        segmentationOverlay = new SegmentationOverlay(
+                imp,
                 segmentationResults,
                 segmentationSettings);
 
         segmentationOverlay.setTrackMateModelForVisualisationOfSelectedChannels();
         segmentationOverlay.displayTrackMateModelAsOverlay();
+    }
 
+    private void initRoiManager()
+    {
         // Prepare for marking regions
         //
         RoiManager roiManager = RoiManager.getInstance();
         if (roiManager == null)
-            roiManager = new RoiManager();
+            new RoiManager();
         IJ.run("Point Tool...", "type=Hybrid color=Blue size=[Extra Large] add label");
-
         IJ.run(imp, "Make Composite", "");
         IJ.run("Channels Tool...");
         //imp.setActiveChannels("0111");
     }
 
-
-    public SpotCollection getSpotCollectionFromRoiManager()
+    public SpotCollection getSelectedPointsFromRoiManager()
     {
         SpotCollection spotCollection = new SpotCollection();
 
@@ -289,7 +358,6 @@ public class AnalyzeFISHSpotsGUI implements ActionListener, FocusListener {
             {
                 if (roi.getTypeAsString().equals("Point"))
                 {
-
                     Calibration calibration = imp.getCalibration();
 
                     int radius = 1;

@@ -1,6 +1,8 @@
-import de.embl.cba.fish.AnalyzeFISHSpotsGUI;
+import de.embl.cba.fish.AnalyzeFISHSpotsPlugIn;
 import ij.IJ;
 import net.imagej.ImageJ;
+
+import javax.swing.*;
 
 public class RunAnalyzeFISHSpotsPlugin
 {
@@ -12,8 +14,8 @@ public class RunAnalyzeFISHSpotsPlugin
 		// Open example image
 		IJ.open("/Users/tischer/Documents/fiji-plugin-FISH/src/test/resources/test-data-00.zip");
 
-		AnalyzeFISHSpotsGUI analyzeFISHSpotsGUI = new AnalyzeFISHSpotsGUI();
-		analyzeFISHSpotsGUI.showDialog();
+		new AnalyzeFISHSpotsPlugIn().run( "" );
+
 
 		// TODO:
 		// - channels color should not change when finding spots. keep colors of input data.
