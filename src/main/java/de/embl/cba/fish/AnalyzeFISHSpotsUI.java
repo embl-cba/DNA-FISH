@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import static de.embl.cba.fish.ChannelConfigDialog.*;
 
@@ -34,35 +35,30 @@ import static de.embl.cba.fish.ChannelConfigDialog.*;
 
 public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
 
-    public static final String SPOT_RADII_DEFAULT = "1.5,1.5,3";
-    public static final String SPOT_THRESHOLD_DEFAULT = "200";
+    private static final String SPOT_RADII_DEFAULT = "1.5,1.5,3";
+    private static final String SPOT_THRESHOLD_DEFAULT = "200";
     private final ArrayList< ChannelType > channelTypes;
+
     // GUI
     JFrame frame;
 
-    final String buttonHelpText = "Help";
-    JButton buttonHelp =  new JButton();
+    private final String buttonHelpText = "Help";
+    private JButton buttonHelp = new JButton();
 
-    final String buttonSegmentSpotsText = "Find spots";
-    JButton buttonSegmentSpots =  new JButton();
+    private final String buttonSegmentSpotsText = "Find spots";
+    private JButton buttonSegmentSpots =  new JButton();
 
-    final String buttonShowSpotsText = "Show spots";
-    JButton buttonShowSpots =  new JButton();
+    private final String buttonAnalyzeSpotsAroundSelectedRegionsText = "Analyze spots";
+    private JButton buttonAnalyzeSpotsAroundSelectedRegions =  new JButton();
 
-    final String buttonAnalyzeSpotsAroundSelectedRegionsText = "Analyze spots";
-    JButton buttonAnalyzeSpotsAroundSelectedRegions =  new JButton();
+    private final String buttonSaveTableText = "Save table";
+    private JButton buttonSaveTable =  new JButton();
 
-    final String buttonSaveTableText = "Save table";
-    JButton buttonSaveTable =  new JButton();
-
-    final String buttonLoadTableText = "Load table";
+    private final String buttonLoadTableText = "Load table";
     JButton buttonLoadTable =  new JButton();
 
-    final String buttonLogColumnAverageText = "Log column averages";
+    private final String buttonLogColumnAverageText = "Log column averages";
     JButton buttonLogColumnAverage =  new JButton();
-
-    final String textFieldChannelsLabel = "Spots channels [one-based]";
-    JTextField textFieldChannels = new JTextField(12);
 
     final String textFieldSpotRadiiLabel = "Spot radii [pixels]";
     JTextField textFieldSpotRadii = new JTextField(20);
@@ -91,17 +87,23 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
     final String comboBoxSegmentationMethodLabel = "Segmentation method";
     JComboBox comboBoxSegmentationMethod = new JComboBox(new String[] { SegmentationSettings.TRACKMATEDOGSUBPIXEL, SegmentationSettings.TRACKMATEDOG});
 
-    SegmentationResults segmentationResults = new SegmentationResults();
-    SegmentationSettings segmentationSettings = new SegmentationSettings();
-    SegmentationOverlay segmentationOverlay;
+    private SegmentationResults segmentationResults = new SegmentationResults();
+    private SegmentationSettings segmentationSettings = new SegmentationSettings();
+    private SegmentationOverlay segmentationOverlay;
 
-    ImagePlus imp;
+    private ImagePlus imp;
     private final long numFISHChannels;
+    private final ArrayList< Double > channelBackgrounds;
 
-    public AnalyzeFISHSpotsUI( ArrayList< ChannelType > channelTypes )
+    public AnalyzeFISHSpotsUI( ImagePlus imp, ArrayList< ChannelType > channelTypes, ArrayList< Double > channelBackgrounds )
     {
+        this.imp = imp;
         this.channelTypes = channelTypes;
-        numFISHChannels = channelTypes.stream().filter( x -> x.equals( ChannelType.FISHSpots ) ).count();
+        this.numFISHChannels = channelTypes.stream().filter( x -> x.equals( ChannelType.FISHSpots ) ).count();
+        this.channelBackgrounds = channelBackgrounds;
+
+        setSpotChannelIndices();
+        setSpotsChannelBackgrounds();
     }
 
     public void showDialog()
@@ -134,7 +136,6 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         // Spot analysis
         //
         addHeader(panels, iPanel++, c, "SPOT ANALYSIS");
-        addTextField(panels, iPanel++, c, textFieldSpotBackgroundValues, textFieldSpotBackgroundValuesLabel, "100;300;300");
         addButton(panels, iPanel++, c, buttonAnalyzeSpotsAroundSelectedRegions, buttonAnalyzeSpotsAroundSelectedRegionsText );
 
         // Table
@@ -193,7 +194,7 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         else if ( e.getActionCommand().equals( buttonSegmentSpotsText ) )
         {
             segmentSpotsAction();
-            initRoiManager();
+            initPointRoiSelection();
         }
         else if ( e.getActionCommand().equals( buttonAnalyzeSpotsAroundSelectedRegionsText ) )
         {
@@ -257,8 +258,8 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
     {
         // Save Table
         //
-        JFileChooser jFileChooser = new JFileChooser(segmentationSettings.pathName);
-        if (jFileChooser.showSaveDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
+        JFileChooser jFileChooser = new JFileChooser( segmentationSettings.pathName );
+        if ( jFileChooser.showSaveDialog( this.frame ) == JFileChooser.APPROVE_OPTION) {
             File file = jFileChooser.getSelectedFile();
             segmentationResults.SpotsTable.saveTable(file);
         }
@@ -292,18 +293,8 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
     private void updateSegmentationSettings()
     {
         segmentationSettings.frames = null;
-        segmentationSettings.channels = Utils.delimitedStringToIntegerArray(textFieldChannels.getText(), ";");
-        segmentationSettings.channelIDs = textFieldChannels.getText();
-        segmentationSettings.spotRadii = new double[segmentationSettings.channels.length][];
 
-        String[] spotRadii = textFieldSpotRadii.getText().split(";");
-        for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
-        {
-            segmentationSettings.spotRadii[iChannel] = Utils.delimitedStringToDoubleArray(spotRadii[iChannel], ",");
-        }
-
-        segmentationSettings.backgrounds = Utils.delimitedStringToDoubleArray(textFieldSpotBackgroundValues.getText()
-                , ";");
+        updateSpotRadii();
         segmentationSettings.thresholds = Utils.delimitedStringToDoubleArray(textFieldSpotThresholds.getText(), ";");
         segmentationSettings.experimentalBatch = textFieldExperimentalBatch.getText();
         segmentationSettings.experimentID = textFieldExperimentID.getText();
@@ -311,6 +302,35 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         segmentationSettings.method = (String) comboBoxSegmentationMethod.getSelectedItem();
         segmentationSettings.pathName = imp.getOriginalFileInfo().directory; // textFieldPathName.getText();
         segmentationSettings.fileName = imp.getOriginalFileInfo().fileName; // textFieldFileName.getText();
+    }
+
+    private void setSpotsChannelBackgrounds()
+    {
+        segmentationSettings.backgrounds = new double[ segmentationSettings.numSpotsChannels ];
+
+        for ( int c = 0; c < segmentationSettings.numSpotsChannels; c++ )
+        {
+            segmentationSettings.backgrounds[ c ] = channelBackgrounds.get( segmentationSettings.spotChannelIndicesOneBased[ c ] );
+        }
+    }
+
+    private void setSpotChannelIndices()
+    {
+        segmentationSettings.spotChannelIndicesOneBased = IntStream.range(0, channelTypes.size())
+                .filter(channel -> channelTypes.get(channel).equals( ChannelType.FISHSpots) ).map( channel -> channel + 1 )
+                .toArray();
+        segmentationSettings.numSpotsChannels = segmentationSettings.spotChannelIndicesOneBased.length;
+    }
+
+    private void updateSpotRadii()
+    {
+        segmentationSettings.spotRadii = new double[segmentationSettings.spotChannelIndicesOneBased.length][];
+
+        String[] spotRadii = textFieldSpotRadii.getText().split(";");
+        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
+        {
+            segmentationSettings.spotRadii[iChannel] = Utils.delimitedStringToDoubleArray(spotRadii[iChannel], ",");
+        }
     }
 
     private void segmentSpotsAction()
@@ -333,17 +353,24 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         segmentationOverlay.displayTrackMateModelAsOverlay();
     }
 
-    private void initRoiManager()
+    private void initPointRoiSelection()
     {
-        // Prepare for marking regions
-        //
-        RoiManager roiManager = RoiManager.getInstance();
-        if (roiManager == null)
-            new RoiManager();
+        RoiManager roiManager = getRoiManager();
+        roiManager.runCommand(imp,"Show All");
         IJ.run("Point Tool...", "type=Hybrid color=Blue size=[Extra Large] add label");
         IJ.run(imp, "Make Composite", "");
         IJ.run("Channels Tool...");
-        //imp.setActiveChannels("0111");
+        IJ.setTool("point");
+    }
+
+    private RoiManager getRoiManager()
+    {
+        RoiManager roiManager = RoiManager.getInstance();
+        if (roiManager == null)
+            roiManager = new RoiManager();
+        else
+            roiManager.runCommand("Reset");
+        return roiManager;
     }
 
     public SpotCollection getSelectedPointsFromRoiManager()

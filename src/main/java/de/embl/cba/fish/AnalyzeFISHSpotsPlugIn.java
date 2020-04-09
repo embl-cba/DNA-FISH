@@ -4,7 +4,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.PlugIn;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 import static de.embl.cba.fish.ChannelConfigDialog.*;
@@ -30,18 +29,8 @@ public class AnalyzeFISHSpotsPlugIn implements PlugIn {
         if ( imp == null )
             this.imp = IJ.getImage();
 
-        final ArrayList< ChannelType > channelTypes = showChannelConfigDialog();
-        final ArrayList< Double > channelBackgrounds = new BackgroundMeasurementDialog( imp ).showDialogAndGetMeasurements();
-        showAnalysisUI( channelTypes );
-    }
-
-    private ArrayList< ChannelType > showChannelConfigDialog()
-    {
-        return new ChannelConfigDialog( imp ).getChannelTypesDialog();
-    }
-
-    private void showAnalysisUI( ArrayList< ChannelType > channelTypes ){
-        analyzeFISHSpotsUI = new AnalyzeFISHSpotsUI( channelTypes );
-        analyzeFISHSpotsUI.showDialog();
+        final ArrayList< ChannelType > channelTypes = new ChannelConfigDialog( imp ).showDialogToGetChannelTypes();
+        final ArrayList< Double > channelBackgrounds = new BackgroundMeasurementDialog( imp ).showDialogToGetBackgroundMeasurements();
+        new AnalyzeFISHSpotsUI( imp, channelTypes, channelBackgrounds ).showDialog();
     }
 }

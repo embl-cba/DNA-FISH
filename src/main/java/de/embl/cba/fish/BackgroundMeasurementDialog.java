@@ -1,5 +1,6 @@
 package de.embl.cba.fish;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Roi;
@@ -12,24 +13,25 @@ import java.util.OptionalDouble;
 public class BackgroundMeasurementDialog
 {
     private final ImagePlus imp;
-    private RoiManager rm;
+    private RoiManager roiManager;
 
     public BackgroundMeasurementDialog( ImagePlus imp )
     {
         this.imp = imp;
     }
 
-    public ArrayList< Double > showDialogAndGetMeasurements()
+    public ArrayList< Double > showDialogToGetBackgroundMeasurements()
     {
-        rm = showRoiManager();
+        initOvalRoiSelection();
 
         final NonBlockingGenericDialog gd = new NonBlockingGenericDialog( "Background measurement" );
-        gd.addMessage( "Please put multiple ROIs onto background regions,\n" +
+        gd.addMessage( "Please put multiple ROIs onto nuclear background regions,\n" +
                         "adding them to the ROI Manager. Press OK when done." +
                         "\nThe regions\n" +
                         "- must be inside nuclei,\n" +
                         "- can be in different z-planes,\n" +
                         "- should be close to FISH Spots,\n" +
+                        "- should be well distributed across the image,\n" +
                         "- must not contain any FISH spots.\n"
         );
         Utils.addHelpButton( gd, "background-measurement" );
@@ -38,12 +40,15 @@ public class BackgroundMeasurementDialog
         if ( gd.wasCanceled() ) return null;
 
         final ArrayList< Double > backgrounds = quantifySelectedRois();
+
+        Utils.closeRoiManagerAndRemoveRoisFromImage( roiManager, imp );
+
         return backgrounds;
     }
 
     private ArrayList< Double > quantifySelectedRois( )
     {
-        Roi[] rois = rm.getRoisAsArray();
+        Roi[] rois = roiManager.getRoisAsArray();
 
         final ArrayList< ArrayList< Double > > backgroundMeasurements = new ArrayList<>();
         for ( int c = 0; c < imp.getNChannels(); c++ )
@@ -75,14 +80,15 @@ public class BackgroundMeasurementDialog
         return averageBackgroundMeasurements;
     }
 
-    public static RoiManager showRoiManager()
+    private void initOvalRoiSelection()
     {
-        RoiManager rm=RoiManager.getInstance();
-        if (rm==null)
-            rm=new RoiManager();
+        IJ.setTool("oval");
+        roiManager = RoiManager.getInstance();
+        if ( roiManager == null)
+            roiManager = new RoiManager();
         else
-            rm.runCommand("Reset");
-        return rm;
+            roiManager.runCommand("Reset");
+        roiManager.runCommand(imp,"Show All");
     }
 
 }

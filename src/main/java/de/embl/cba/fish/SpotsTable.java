@@ -37,7 +37,7 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
 
     public void initializeTable()
     {
-        int[] channels = segmentationSettings.channels;
+        int[] channels = segmentationSettings.spotChannelIndicesOneBased;
 
         List<String> columns = new ArrayList<>();
 

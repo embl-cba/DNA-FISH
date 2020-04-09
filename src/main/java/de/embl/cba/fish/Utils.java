@@ -34,6 +34,7 @@ import fiji.plugin.trackmate.Spot;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.NonBlockingGenericDialog;
+import ij.plugin.frame.RoiManager;
 
 import javax.swing.*;
 
@@ -117,4 +118,11 @@ public class Utils {
 		gd.addHelp( "https://github.com/tischi/fiji-plugin-FISH/blob/master/README.md#" + section );
 		gd.setHelpLabel( "README" );
 	}
+
+    public static void closeRoiManagerAndRemoveRoisFromImage( RoiManager roiManager, ImagePlus imp )
+    {
+        roiManager.runCommand(imp,"Show None");
+        roiManager.close();
+        IJ.run(imp, "Select None", "");
+    }
 }

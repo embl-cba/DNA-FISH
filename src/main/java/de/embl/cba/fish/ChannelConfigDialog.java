@@ -21,7 +21,7 @@ public class ChannelConfigDialog
         this.imp = imp;
     }
 
-    public ArrayList< ChannelType > getChannelTypesDialog()
+    public ArrayList< ChannelType > showDialogToGetChannelTypes()
     {
         final int nChannels = imp.getNChannels();
 
@@ -51,7 +51,7 @@ public class ChannelConfigDialog
     {
         for ( int i = 0; i < nChannels; i++ )
         {
-            gd.addChoice( "Channel " + i, getNames( ChannelType.class ), ChannelType.FISHSpots.toString() );
+            gd.addChoice( "Channel " + ( i + 1 ), getNames( ChannelType.class ), ChannelType.FISHSpots.toString() );
         }
     }
 

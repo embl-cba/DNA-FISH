@@ -12,8 +12,8 @@ public class SegmentationSettings
     public double[][] spotRadii;
     public double[] thresholds;
     public double[] backgrounds;
-    public int[] channels;
-    public String channelIDs;
+    public int[] spotChannelIndicesOneBased;
+    //public String channelIDs; // ??
 
     public int[] frames;
     public String method;
@@ -23,4 +23,5 @@ public class SegmentationSettings
     public String treatment;
     public String pathName;
     public String fileName;
+    public int numSpotsChannels;
 }

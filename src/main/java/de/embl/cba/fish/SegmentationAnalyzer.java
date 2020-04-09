@@ -13,7 +13,9 @@ import net.imglib2.outofbounds.OutOfBoundsMirrorExpWindowingFactory;
 import net.imglib2.type.numeric.RealType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -40,7 +42,7 @@ public class SegmentationAnalyzer< T extends RealType< T >>
         this.segmentationSettings = segmentationSettings;
     }
 
-    public void analyzeSpotsAroundSelectedPoints(SpotCollection selectedPoints)
+    public void analyzeSpotsAroundSelectedPoints( SpotCollection selectedPoints )
     {
         // Initialise Results Table
         //
@@ -63,7 +65,8 @@ public class SegmentationAnalyzer< T extends RealType< T >>
             tableRow.add(segmentationSettings.treatment);
             tableRow.add(segmentationSettings.pathName);
             tableRow.add(segmentationSettings.fileName);
-            tableRow.add(segmentationSettings.channelIDs);
+            tableRow.add( Arrays.stream( segmentationSettings.spotChannelIndicesOneBased ).mapToObj( x -> "" + x )
+                    .collect( Collectors.joining(",")));
 
             /*
             FileInfo fi = imp.getFileInfo();
@@ -81,10 +84,10 @@ public class SegmentationAnalyzer< T extends RealType< T >>
 
             // Find the closest spot in each channel
             //
-            Spot[] closestSpotsTrackMateDoGMax = new Spot[segmentationSettings.channels.length];
-            Spot[] closestSpotsCenterOfMass = new Spot[segmentationSettings.channels.length];
+            Spot[] closestSpotsTrackMateDoGMax = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
+            Spot[] closestSpotsCenterOfMass = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
 
-            for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++) {
+            for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++) {
 
                 SpotCollection spotCollection = segmentationResults.models[iChannel].getSpots();
 
@@ -184,7 +187,7 @@ public class SegmentationAnalyzer< T extends RealType< T >>
         long[] center = new long[img.numDimensions()];
         center[0] = Math.round(spot.getFeature(Spot.POSITION_FEATURES[0]).doubleValue() / imp.getCalibration().pixelWidth);
         center[1] = Math.round(spot.getFeature(Spot.POSITION_FEATURES[1]).doubleValue() / imp.getCalibration().pixelHeight);
-        center[2] = segmentationSettings.channels[iChannel] - 1;  // zero-based channels for img
+        center[2] = segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1;  // zero-based channels for img
         center[3] = Math.round(spot.getFeature(Spot.POSITION_FEATURES[2]).doubleValue() / imp.getCalibration().pixelDepth);
 
         // Set radii of the region in which the center of mass should be computed

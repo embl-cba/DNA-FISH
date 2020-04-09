@@ -52,11 +52,11 @@ public class SegmentationOverlay implements ImageListener {
     {
         selectionModel.clearSpotSelection();
 
-        for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
+        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
             // add spots to selectionModel only if this channel is active
             //
-            if (activeChannels[segmentationSettings.channels[iChannel] - 1])
+            if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
             {
                 Model model = segmentationResults.models[iChannel];
                 selectionModel.addSpotToSelection(model.getSpots().getNClosestSpots(location, frame, n, false));
@@ -84,15 +84,15 @@ public class SegmentationOverlay implements ImageListener {
         int frame = 0; // zero-based !!
         int channelColumn = 5;
 
-        segmentationSettings.channelIDs = segmentationResults.SpotsTable.table.getModel().getValueAt(0, channelColumn).toString();
-        segmentationSettings.channels =  Utils.delimitedStringToIntegerArray(segmentationSettings.channelIDs, ";");
+        //segmentationSettings.channelIDs = segmentationResults.SpotsTable.table.getModel().getValueAt(0, channelColumn).toString();
+       // segmentationSettings.spotChannelIndices =  Utils.delimitedStringToIntegerArray(segmentationSettings.channelIDs, ";");
 
         modelSelectedChannels.beginUpdate();
-        for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
+        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
             // add spots to overlay only if this channel is active
             //
-            if (activeChannels[segmentationSettings.channels[iChannel] - 1])
+            if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
             {
                 /*
                 Spot spot = new Spot();
@@ -119,17 +119,17 @@ public class SegmentationOverlay implements ImageListener {
         int frame = 0; // zero-based !!
 
         modelSelectedChannels.beginUpdate();
-        for (int iChannel = 0; iChannel < segmentationSettings.channels.length; iChannel++)
+        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
             // add spots to overlay only if this channel is active
             //
-            if (activeChannels[segmentationSettings.channels[iChannel] - 1])
+            if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
             {
                 Model model = models[iChannel];
                 SpotCollection spotCollection = model.getSpots();
                 for (Spot spot : spotCollection.iterable(false))
                 {
-                    spot.putFeature("COLOR", (double) segmentationSettings.channels[iChannel]); // one-based
+                    spot.putFeature("COLOR", (double) segmentationSettings.spotChannelIndicesOneBased[iChannel]); // one-based
                     modelSelectedChannels.addSpotTo(spot, frame);
                 }
             }
