@@ -33,6 +33,7 @@ package de.embl.cba.fish;
 import fiji.plugin.trackmate.Spot;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.NonBlockingGenericDialog;
 
 import javax.swing.*;
 
@@ -110,4 +111,10 @@ public class Utils {
             }
         }
     }
+
+	public static void addHelpButton( NonBlockingGenericDialog gd, final String section )
+	{
+		gd.addHelp( "https://github.com/tischi/fiji-plugin-FISH/blob/master/README.md#" + section );
+		gd.setHelpLabel( "README" );
+	}
 }

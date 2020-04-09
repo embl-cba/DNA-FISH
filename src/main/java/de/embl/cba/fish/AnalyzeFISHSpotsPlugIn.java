@@ -31,6 +31,7 @@ public class AnalyzeFISHSpotsPlugIn implements PlugIn {
             this.imp = IJ.getImage();
 
         final ArrayList< ChannelType > channelTypes = showChannelConfigDialog();
+        final ArrayList< Double > channelBackgrounds = new BackgroundMeasurementDialog( imp ).showDialogAndGetMeasurements();
         showAnalysisUI( channelTypes );
     }
 

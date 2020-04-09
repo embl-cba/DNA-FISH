@@ -27,7 +27,8 @@ public class ChannelConfigDialog
 
         final NonBlockingGenericDialog gd = new NonBlockingGenericDialog( "Channel Setup" );
         addChannelTypesDialogs( gd, nChannels );
-        gd.addHelp( "https://github.com/tischi/fiji-plugin-FISH/blob/master/README.md#channel-setup" );
+
+        Utils.addHelpButton( gd, "channel-setup" );
 
         gd.showDialog();
         if ( gd.wasCanceled() ) return null;
