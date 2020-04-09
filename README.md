@@ -10,6 +10,8 @@ A Fiji plugin to analyse images with FISH spots.
 - Restart Fiji
 - The plugin will appear under [ Plugins > Analyze > FISH Spots ]
 
+Note: a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.  
+
 ## Usage
 
 ...
