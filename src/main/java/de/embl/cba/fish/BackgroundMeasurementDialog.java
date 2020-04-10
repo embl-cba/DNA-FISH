@@ -61,7 +61,7 @@ public class BackgroundMeasurementDialog
             for ( int c = 1; c <= imp.getNChannels(); c++ )
             {
                 imp.setC( c );
-                imp.setZ( roi.getPosition() );
+                imp.setZ( roi.getZPosition() );
                 ImageProcessor currentProcessor = imp.getChannelProcessor();
                 currentProcessor.setRoi( roi );
                 double meanValue = currentProcessor.getStats().mean;
