@@ -4,25 +4,35 @@ A Fiji plugin to analyse images with FISH spots.
 
 ## Installation
 
+- Please [install Fiji](fiji.sc)
+- Within Fiji, please [enable below Update Site](https://imagej.net/Following_an_update_site): 
+    - [X] EMBL-CBA
+- Restart Fiji
+- The plugin will appear under [ Plugins > Analyze > FISH Spots ]
+
+Note: a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.  
+
 ## Usage
 
-## Channel setup
+...
+
+### Channel setup
 
 ...
 
-## Background measurement
+### Background measurement
 
 ...
 
-## Spot position measurement
+### Spot position measurement
 
 From TrackMate help: https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors
 
-## Manual region selection
+### Manual region selection
 
 Using ImageJ's point selection tool one marks regions in which FISH spots should be analyzed (see below). It is *not important* to place these points very exactly, because the algorithm will just use them to identify the region in which is should analyse the FISH spots (see below). 
 
-## Analyze spots
+### Analyze spots
 
 Upon pressing the **[ Analyze spots ]** button (fka "Analyze regions"), the plugin will, for each of the manually selected points, find the *closest* spot in each channel, measure its position and measure the distances between the spots in the different channels. 
 
