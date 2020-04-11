@@ -8,7 +8,7 @@ A Fiji plugin to analyse images with FISH spots.
 - Within Fiji, please [enable below Update Site](https://imagej.net/Following_an_update_site): 
     - [X] EMBL-CBA
 - Restart Fiji
-- The plugin will appear under [ Plugins > Analyze > FISH Spots ]
+- The plugin will appear under **[ Plugins > Analyze > FISH Spots ]** <img src="https://user-images.githubusercontent.com/2157566/79047667-6b54cb80-7c18-11ea-84ff-7d1d29fe6570.png" width="500">
 
 Note: a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.  
 
