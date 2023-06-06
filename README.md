@@ -7,7 +7,7 @@ A Fiji plugin to analyse images with FISH spots.
 - Please [install Fiji](fiji.sc)
 - Copy the jar (TBA) into the `Fiji.app/jars` folder  
 - Restart Fiji
-- The plugin will appear under [ Plugins > Analyze > FISH Spots ]
+- The plugin will appear under **[ Plugins > Analyze > FISH Spots ]** <img src="https://user-images.githubusercontent.com/2157566/79047667-6b54cb80-7c18-11ea-84ff-7d1d29fe6570.png" width="500">
 
 Notes: 
 
