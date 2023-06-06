@@ -12,6 +12,8 @@
 	<artifactId>fiji-plugin-FISH</artifactId>
 	<version>0.1.1</version>
 
+<!--	mvn install -Dscijava.app.directory=/Users/tischer/Desktop/Fiji/Fiji.app  -->
+
 	<url>https://github.com/tischi/fiji-plugin-FISH</url>
 	<name>fiji-plugin-FISH</name>
 	<description>A Fiji plugin to analyse images with FISH spots</description>
