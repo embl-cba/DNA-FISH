@@ -1,6 +1,13 @@
 package de.embl.cba.fish;
 
-import fiji.plugin.trackmate.*;
+import java.awt.Color;
+
+import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.SelectionModel;
+import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.features.ModelFeatureUpdater;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 import fiji.plugin.trackmate.visualization.SpotColorGenerator;
@@ -9,11 +16,8 @@ import ij.CompositeImage;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
-import ij.process.LUT;
 import ij.gui.Overlay;
-import org.jfree.chart.renderer.InterpolatePaintScale;
-
-import java.awt.*;
+import ij.process.LUT;
 
 
 // TODO:
@@ -48,7 +52,7 @@ public class SegmentationOverlay implements ImageListener {
         ImagePlus.addImageListener(this);
     }
 
-    public void highlightNClosestSpotsOfActiveChannels(Spot location, int n, int frame)
+	public void highlightNClosestSpotsOfActiveChannels( Spot location, int frame )
     {
         selectionModel.clearSpotSelection();
 
@@ -59,7 +63,7 @@ public class SegmentationOverlay implements ImageListener {
             if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
             {
                 Model model = segmentationResults.models[iChannel];
-                selectionModel.addSpotToSelection(model.getSpots().getNClosestSpots(location, frame, n, false));
+				selectionModel.addSpotToSelection( model.getSpots().getClosestSpot( location, frame, false ) );
             }
         }
 
