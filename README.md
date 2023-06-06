@@ -5,32 +5,34 @@ A Fiji plugin to analyse images with FISH spots.
 ## Installation
 
 - Please [install Fiji](fiji.sc)
-- Within Fiji, please [enable below Update Site](https://imagej.net/Following_an_update_site): 
-    - [X] EMBL-CBA
+- Copy the jar (TBA) into the `Fiji.app/jars` folder  
 - Restart Fiji
 - The plugin will appear under [ Plugins > Analyze > FISH Spots ]
 
-Note: a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.  
+Notes: 
+
+1. a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.
+2. another previous version of this plugin was distributed via the EMBL-CBA update site; this is deprecated and this update site **must not be used anymore**.
 
 ## Usage
 
-...
+TODO...
 
 ### Channel setup
 
-...
+TODO...
 
 ### Background measurement
 
-...
+TODO...
 
 ### Spot position measurement
 
-From TrackMate help: https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors
+Spots are detected using TrackMate; help can be [found here](https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors).
 
 ### Manual region selection
 
-Using ImageJ's point selection tool one marks regions in which FISH spots should be analyzed (see below). It is *not important* to place these points very exactly, because the algorithm will just use them to identify the region in which is should analyse the FISH spots (see below). 
+Using ImageJ's point selection tool one marks regions in which FISH spots should be analyzed (see below). It is *not important* to place these points very exactly, because the algorithm will just use these annotations to identify the regions in which it should detect the FISH spots (see below). 
 
 ### Analyze spots
 
