@@ -1,12 +1,7 @@
 package de.embl.cba.fish;
 
-import fiji.plugin.trackmate.Spot;
-import ij.IJ;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -18,6 +13,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import fiji.plugin.trackmate.Spot;
+import ij.IJ;
 
 
 public class SpotsTable extends JPanel implements MouseListener, KeyListener {
@@ -227,7 +234,7 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
             int frame = 0;
             Spot location = new Spot(x,y,z,radius,quality);
 
-            segmentationOverlay.highlightNClosestSpotsOfActiveChannels(location, 1, frame);
+			segmentationOverlay.highlightNClosestSpotsOfActiveChannels( location, frame );
             //ImagePlus imp = segmentationOverlay.imp;
             //imp.setZ( (int) Math.round(z / imp.getCalibration().pixelDepth) );
         }
