@@ -1,6 +1,8 @@
 package de.embl.cba.fish;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
@@ -9,6 +11,7 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.features.ModelFeatureUpdater;
+import fiji.plugin.trackmate.features.manual.ManualSpotColorAnalyzerFactory;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.visualization.ManualSpotColorGenerator;
@@ -119,12 +122,17 @@ public class SegmentationOverlay implements ImageListener {
 
         Settings settings = new Settings();
         settings.addTrackAnalyzer(new TrackIndexAnalyzer());
-        ModelFeatureUpdater modelFeatureUpdater = new ModelFeatureUpdater( selectedChannelsModel, settings);
 
         int frame = 0; // zero-based !!
 
+        // TODO map the channelIndex to a color
+        Map< Integer, Color > channelIndexToColor = new HashMap<>();
+        channelIndexToColor.put( 1, Color.RED );
+        channelIndexToColor.put( 2, Color.BLUE );
+        channelIndexToColor.put( 3, Color.GREEN );
+
         selectedChannelsModel.beginUpdate();
-        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
+        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++ )
         {
             // add spots to overlay only if this channel is active
             //
@@ -134,7 +142,12 @@ public class SegmentationOverlay implements ImageListener {
                 SpotCollection spotCollection = model.getSpots();
                 for (Spot spot : spotCollection.iterable(false))
                 {
-                    spot.putFeature("COLOR", (double) segmentationSettings.spotChannelIndicesOneBased[iChannel]); // one-based
+                    // https://github.com/trackmate-sc/TrackMate/blob/master/src/main/java/fiji/plugin/trackmate/visualization/trackscheme/TrackSchemePopupMenu.java#LL93C1-L95C69
+                    final int channelIndex = segmentationSettings.spotChannelIndicesOneBased[ iChannel ];
+                    final Color color = channelIndexToColor.get( channelIndex );
+                    final Double colorIndex = Double.valueOf( color.getRGB() );
+                    System.out.println("Channel: " + channelIndex + "; color: " + colorIndex);
+                    spot.putFeature(ManualSpotColorAnalyzerFactory.FEATURE, colorIndex);
                     selectedChannelsModel.addSpotTo(spot, frame);
                 }
             }
@@ -155,7 +168,6 @@ public class SegmentationOverlay implements ImageListener {
 		hyperStackDisplayer = new HyperStackDisplayer( selectedChannelsModel, selectionModel, imp, ds );
         hyperStackDisplayer.render();
         hyperStackDisplayer.refresh();
-
     }
 
     public LUT createLUTFromColor(Color color)
