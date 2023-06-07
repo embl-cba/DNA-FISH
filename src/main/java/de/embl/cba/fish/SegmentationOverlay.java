@@ -49,10 +49,11 @@ public class SegmentationOverlay implements ImageListener {
         {
             activeChannels[ i ] = true;
         }
+
         ImagePlus.addImageListener(this);
     }
 
-	public void highlightNClosestSpotsOfActiveChannels( Spot location, int frame )
+	public void highlightClosestSpotOfActiveChannels( Spot location, int frame )
     {
         selectionModel.clearSpotSelection();
 
@@ -125,7 +126,7 @@ public class SegmentationOverlay implements ImageListener {
         modelSelectedChannels.beginUpdate();
         for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
-            // add spots to overlay only if this channel is active
+            // add spots to overlay if this channel is active
             //
             if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
             {
