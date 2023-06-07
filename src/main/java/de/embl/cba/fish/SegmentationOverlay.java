@@ -11,6 +11,7 @@ import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.features.ModelFeatureUpdater;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
+import fiji.plugin.trackmate.visualization.ManualSpotColorGenerator;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 import ij.CompositeImage;
 import ij.IJ;
@@ -32,7 +33,7 @@ public class SegmentationOverlay implements ImageListener {
 
     // TrackMate specific
     public SelectionModel selectionModel;
-    public Model modelSelectedChannels;
+    public Model selectedChannelsModel;
     HyperStackDisplayer hyperStackDisplayer;
 
     public SegmentationOverlay(ImagePlus imp,
@@ -52,7 +53,7 @@ public class SegmentationOverlay implements ImageListener {
         ImagePlus.addImageListener(this);
     }
 
-	public void highlightNClosestSpotsOfActiveChannels( Spot location, int frame )
+	public void highlightClosestSpotOfActiveChannels( Spot location, int frame )
     {
         selectionModel.clearSpotSelection();
 
@@ -79,11 +80,11 @@ public class SegmentationOverlay implements ImageListener {
 
     public void setTrackMateOverlayFromTable()
     {
-        modelSelectedChannels = new Model();
-        modelSelectedChannels.setLogger(Logger.IJ_LOGGER);
+        selectedChannelsModel = new Model();
+        selectedChannelsModel.setLogger(Logger.IJ_LOGGER);
         Settings settings = new Settings();
         settings.addTrackAnalyzer(new TrackIndexAnalyzer());
-        ModelFeatureUpdater modelFeatureUpdater = new ModelFeatureUpdater(modelSelectedChannels, settings);
+        ModelFeatureUpdater modelFeatureUpdater = new ModelFeatureUpdater( selectedChannelsModel, settings);
 
         int frame = 0; // zero-based !!
         int channelColumn = 5;
@@ -91,7 +92,7 @@ public class SegmentationOverlay implements ImageListener {
         //segmentationSettings.channelIDs = segmentationResults.SpotsTable.table.getModel().getValueAt(0, channelColumn).toString();
        // segmentationSettings.spotChannelIndices =  Utils.delimitedStringToIntegerArray(segmentationSettings.channelIDs, ";");
 
-        modelSelectedChannels.beginUpdate();
+        selectedChannelsModel.beginUpdate();
         for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
             // add spots to overlay only if this channel is active
@@ -105,7 +106,7 @@ public class SegmentationOverlay implements ImageListener {
                 */
             }
         }
-        modelSelectedChannels.endUpdate();
+        selectedChannelsModel.endUpdate();
     }
 
     public void setTrackMateModelForVisualisationOfSelectedChannels()
@@ -113,16 +114,16 @@ public class SegmentationOverlay implements ImageListener {
         // get the multi-channel TrackMate results
         Model[] models = segmentationResults.models;
 
-        modelSelectedChannels = new Model();
-        modelSelectedChannels.setLogger(Logger.IJ_LOGGER);
+        selectedChannelsModel = new Model();
+        selectedChannelsModel.setLogger(Logger.IJ_LOGGER);
 
         Settings settings = new Settings();
         settings.addTrackAnalyzer(new TrackIndexAnalyzer());
-        ModelFeatureUpdater modelFeatureUpdater = new ModelFeatureUpdater(modelSelectedChannels, settings);
+        ModelFeatureUpdater modelFeatureUpdater = new ModelFeatureUpdater( selectedChannelsModel, settings);
 
         int frame = 0; // zero-based !!
 
-        modelSelectedChannels.beginUpdate();
+        selectedChannelsModel.beginUpdate();
         for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
         {
             // add spots to overlay only if this channel is active
@@ -134,27 +135,24 @@ public class SegmentationOverlay implements ImageListener {
                 for (Spot spot : spotCollection.iterable(false))
                 {
                     spot.putFeature("COLOR", (double) segmentationSettings.spotChannelIndicesOneBased[iChannel]); // one-based
-                    modelSelectedChannels.addSpotTo(spot, frame);
+                    selectedChannelsModel.addSpotTo(spot, frame);
                 }
             }
         }
-        modelSelectedChannels.endUpdate();
+        selectedChannelsModel.endUpdate();
     }
 
     public void displayTrackMateModelAsOverlay()
     {
-        SpotCollection spotCollection = modelSelectedChannels.getSpots();
-
-		// Configure trackMate's visualization scheme
+        // Configure trackMate's visualization scheme
 		DisplaySettings ds = DisplaySettings.defaultStyle();
 		ds.setTrackVisible( false );
 		ds.setSpotVisible( true );
 		ds.setSpotDisplayRadius( 2. );
 		ds.setHighlightColor( Color.BLUE );
 
-		selectionModel = new SelectionModel( modelSelectedChannels );
-        //selectionModel.addSpotToSelection(spotCollection);
-		hyperStackDisplayer = new HyperStackDisplayer( modelSelectedChannels, selectionModel, imp, ds );
+		selectionModel = new SelectionModel( selectedChannelsModel );
+		hyperStackDisplayer = new HyperStackDisplayer( selectedChannelsModel, selectionModel, imp, ds );
         hyperStackDisplayer.render();
         hyperStackDisplayer.refresh();
 
