@@ -56,7 +56,7 @@ public class SegmentationOverlay implements ImageListener {
         ImagePlus.addImageListener(this);
     }
 
-	public void highlightClosestSpotOfActiveChannels( Spot location, int frame )
+    public void highlightClosestSpotOfActiveChannels( Spot location, int frame )
     {
         selectionModel.clearSpotSelection();
 
@@ -124,8 +124,7 @@ public class SegmentationOverlay implements ImageListener {
         settings.addTrackAnalyzer(new TrackIndexAnalyzer());
 
         int frame = 0; // zero-based !!
-
-        // TODO map the channelIndex to a color
+	
         Map< Integer, Color > channelIndexToColor = new HashMap<>();
         channelIndexToColor.put( 1, Color.RED );
         channelIndexToColor.put( 2, Color.BLUE );
