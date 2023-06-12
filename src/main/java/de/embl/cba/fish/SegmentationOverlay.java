@@ -1,6 +1,7 @@
 package de.embl.cba.fish;
 
 import java.awt.Color;
+import java.awt.image.IndexColorModel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,11 +126,7 @@ public class SegmentationOverlay implements ImageListener {
 
         int frame = 0; // zero-based !!
 
-        // TODO map the channelIndex to a color
-        Map< Integer, Color > channelIndexToColor = new HashMap<>();
-        channelIndexToColor.put( 1, Color.RED );
-        channelIndexToColor.put( 2, Color.BLUE );
-        channelIndexToColor.put( 3, Color.GREEN );
+        Map< Integer, Color > channelIndexToColor = createChannelIndexToColorMap();
 
         selectedChannelsModel.beginUpdate();
         for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++ )
@@ -142,7 +139,6 @@ public class SegmentationOverlay implements ImageListener {
                 SpotCollection spotCollection = model.getSpots();
                 for (Spot spot : spotCollection.iterable(false))
                 {
-                    // https://github.com/trackmate-sc/TrackMate/blob/master/src/main/java/fiji/plugin/trackmate/visualization/trackscheme/TrackSchemePopupMenu.java#LL93C1-L95C69
                     final int channelIndex = segmentationSettings.spotChannelIndicesOneBased[ iChannel ];
                     final Color color = channelIndexToColor.get( channelIndex );
                     final Double colorIndex = Double.valueOf( color.getRGB() );
@@ -155,6 +151,25 @@ public class SegmentationOverlay implements ImageListener {
         selectedChannelsModel.endUpdate();
     }
 
+    private Map< Integer, Color > createChannelIndexToColorMap()
+    {
+        final CompositeImage compositeImage = ( CompositeImage ) (imp);
+        final int nChannels = compositeImage.getNChannels();
+        Map< Integer, Color > channelIndexToColor = new HashMap<>();
+        final LUT[] luts = compositeImage.getLuts();
+        for ( int channelIndex = 0; channelIndex < nChannels; channelIndex++ )
+        {
+            IndexColorModel cm = luts[ channelIndex ];
+            int index = cm.getMapSize() - 1;
+            int r = cm.getRed(index);
+            int g = cm.getGreen(index);
+            int b = cm.getBlue(index);
+            final Color color = new Color( r, g, b );
+            channelIndexToColor.put( channelIndex+1, color );
+        }
+        return channelIndexToColor;
+    }
+
     public void displayTrackMateModelAsOverlay()
     {
         // Configure trackMate's visualization scheme
@@ -163,6 +178,7 @@ public class SegmentationOverlay implements ImageListener {
 		ds.setSpotVisible( true );
 		ds.setSpotDisplayRadius( 2. );
 		ds.setHighlightColor( Color.BLUE );
+        ds.setSpotColorBy( DisplaySettings.TrackMateObject.SPOTS, ManualSpotColorAnalyzerFactory.FEATURE );
 
 		selectionModel = new SelectionModel( selectedChannelsModel );
 		hyperStackDisplayer = new HyperStackDisplayer( selectedChannelsModel, selectionModel, imp, ds );
