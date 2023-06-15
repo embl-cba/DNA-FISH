@@ -28,17 +28,35 @@ TODO...
 
 TODO...
 
-### Spot position measurement
+### Find spots
 
 Spots are detected using TrackMate; help can be [found here](https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors).
 
-### Manual region selection
-
-Using ImageJ's point selection tool one marks regions in which FISH spots should be analyzed (see below). It is *not important* to place these points very exactly, because the algorithm will just use these annotations to identify the regions in which it should detect the FISH spots (see below). 
 
 ### Analyze spots
 
-Upon pressing the **[ Analyze spots ]** button (fka "Analyze regions"), the plugin will, for each of the manually selected points, find the *closest* spot in each channel, measure its position and measure the distances between the spots in the different channels. 
+##### Select spot region of interest 
+
+Using ImageJ's point selection tool mark the regions in which FISH spots should be analyzed (see below). 
+
+The aim is to measure spot distances in different channels.
+
+For example, in the below screenshot the manually placed cross informs the algorithm that it should measure the distances between the two spots in the center of the image, because they are the two the spots that are closest to the cross. 
+
+TODO: add screenshot
+
+It is *not important* to place these points very exactly, because the algorithm will just use these annotations to identify the regions in which it should detect the FISH spots.
+
+However care must be take that really the spots of interest are the two closest to the selected region.
+For example, one could imagine that a spot at the border of a nucleus is closer to a spot in the neighboring nucleus than to the corresponding spot in the same nucleus. There are two approaches to handle this:
+
+1. place the cross not on the spot that is close the edge of the nucleus, but rather between the two spots that belong to each other
+2. during the spot detection (s.a.) draw a ROI around the nucleus of interest as this will then only detect the spots in this nucleus
+
+
+##### Perform distance measurements 
+
+Upon pressing the **[ Analyze spots ]** button, the plugin will, for each of the manually selected points, find the *closest* spot in each channel, measure its position and measure the distances between the spots in the different channels. 
 
 ### TrackMate_DoG
 
