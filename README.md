@@ -9,15 +9,13 @@ DNA FISH makes it possible to detect specific genomic loci and estimate their nu
 
 - Please [install Fiji](fiji.sc)
     - Note that in case of doubt starting from a fresh Fiji is recommended 
-- Download the desired (latest) version of [the jar](https://github.com/tischi/fiji-plugin-FISH/tree/master/jars) into the `Fiji.app/jars` folder
-    - Click on the jar that you want to download; then on the very right of the page there is a download button 
-- Restart Fiji
-- The plugin will appear under **[ Plugins > Analyze > FISH Spots ]** <img src="https://user-images.githubusercontent.com/2157566/79047667-6b54cb80-7c18-11ea-84ff-7d1d29fe6570.png" width="500">
+- Start Fiji and [add the update site](https://imagej.net/update-sites/following): DNA-FISH
+- Restart fiji and the plugin will appear under **[ Plugins > Analyze > FISH Spots ]** <img src="https://user-images.githubusercontent.com/2157566/79047667-6b54cb80-7c18-11ea-84ff-7d1d29fe6570.png" width="500">
 
 Notes: 
 
-1. a previous version of this plugin was distributed as a jar with a name similar to open-stacks-as-virtual-stacks.jar. This jar may be in your Fiji plugins or jars folder and **must be removed**.
-2. another previous version of this plugin was distributed via the EMBL-CBA update site; this is deprecated and this update site **must not be used anymore**.
+1. a previous version of this plugin was distributed as a jar with a name similar to **open-stacks-as-virtual-stacks.jar**. This jar may be in your Fiji plugins or jars folder and **must be removed**.
+2. another previous version of this plugin was distributed via the **EMBL-CBA** update site; this is deprecated and this update site **must not be used anymore**.
 
 ## Usage
 

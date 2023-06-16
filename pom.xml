@@ -9,12 +9,12 @@
 	</parent>
 
 	<groupId>de.embl.cba</groupId>
-	<artifactId>fiji-plugin-FISH</artifactId>
-	<version>0.2.0</version>
+	<artifactId>dna-fish</artifactId>
+	<version>0.2.1</version>
 
-	<!-- mvn install -Dscijava.app.directory=/Users/tischer/Desktop/Fiji/Fiji.app -->
+	<!-- mvn install -Dscijava.app.directory=/Users/tischer/Desktop/Fiji/Fiji-DNA-FISH.app -->
 
-	<url>https://github.com/tischi/fiji-plugin-FISH</url>
+	<url>https://github.com/cba/DNA-FISH</url>
 	<name>fiji-plugin-FISH</name>
 	<description>A Fiji plugin to analyse images with FISH spots</description>
 	<inceptionYear>2018</inceptionYear>
