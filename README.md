@@ -2,7 +2,8 @@
 
 A Fiji plugin to analyse images with FISH spots.
 
-DNA FISH makes it possible to detect specific genomic loci and estimate their number and distance at a resolution of a single nucleus by hybridization of fluorescent probes that share sequence similarity with a genomic region of interest. Important applications involve counting specific loci that differences in their number is associated with disease such as cancer. In addition, the genome is architecturally organized inside the nucleus and in certain cases different regions that are distant in the linear genome, need to come in proximity so as to perform genome function. In that sense, DNA FISH can actually be used to measure distances between the regions of interest. 
+DNA FISH makes it possible to detect specific genomic loci and estimate their number and distance at a resolution of a single nucleus by hybridization of fluorescent probes that share sequence similarity with a genomic region of interest. Important applications involve counting specific loci that differences in their number is associated with disease such as cancer. In addition, the genome is architecturally organized inside the nucleus and in certain cases different regions that are distant in the linear genome, need to come in proximity so as to perform genome function. In that sense, DNA FISH can actually be used to measure distances between the regions of interest. However, identifying the spot center as well as calculating the distance between spots is not trivial but also a laborious task. 
+"Analyse FISH Spots" simplifies and semi-automates this process.
 
 ## Installation
 
