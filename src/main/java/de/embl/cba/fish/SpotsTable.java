@@ -60,23 +60,20 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
 
         for (int i=0; i<channels.length; i++ )
         {
-            columns.add("Ch"+String.valueOf(channels[i])+"_DoG_X");
-            columns.add("Ch"+String.valueOf(channels[i])+"_DoG_Y");
-            columns.add("Ch"+String.valueOf(channels[i])+"_DoG_Z");
-        }
+            columns.add("Ch"+channels[i]+"_DoG_X");
+            columns.add("Ch"+channels[i]+"_DoG_Y");
+            columns.add("Ch"+channels[i]+"_DoG_Z");
 
-        for (int i=0; i<channels.length; i++ )
-        {
-            columns.add("Ch"+String.valueOf(channels[i])+"_CoM_X");
-            columns.add("Ch"+String.valueOf(channels[i])+"_CoM_Y");
-            columns.add("Ch"+String.valueOf(channels[i])+"_CoM_Z");
+            columns.add("Ch"+channels[i]+"_CoM_X");
+            columns.add("Ch"+channels[i]+"_CoM_Y");
+            columns.add("Ch"+channels[i]+"_CoM_Z");
         }
-
+        
         for (int i=0; i<channels.length-1; i++ )
         {
             for (int j=i+1; j<channels.length; j++ )
             {
-                columns.add("Dist_DoG_Ch" + String.valueOf(channels[i]) + "_Ch" + String.valueOf(channels[j]));
+                columns.add("Dist_DoG_Ch" + channels[i] + "_Ch" + channels[j]);
             }
         }
 
@@ -84,7 +81,7 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
         {
             for (int j=i+1; j<channels.length; j++ )
             {
-                columns.add("Dist_CoM_Ch" + String.valueOf(channels[i]) + "_Ch" + String.valueOf(channels[j]));
+                columns.add("Dist_CoM_Ch" + channels[i] + "_Ch" + channels[j]);
             }
         }
 

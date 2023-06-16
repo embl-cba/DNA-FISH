@@ -198,7 +198,7 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         }
         else if ( e.getActionCommand().equals( buttonAnalyzeSpotsAroundSelectedRegionsText ) )
         {
-            analyzeSelectedSpotsAction();
+            analyzeSpotsAroundSelectedPointsAction();
         }
         else if ( e.getActionCommand().equals( buttonLogColumnAverageText ) )
         {
@@ -265,7 +265,7 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         }
     }
 
-    private void analyzeSelectedSpotsAction()
+    private void analyzeSpotsAroundSelectedPointsAction()
     {
         // Check the ROI Manager for selected points
         //
@@ -278,7 +278,7 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
 
         SpotCollection selectedPoints = getSelectedPointsFromRoiManager();
 
-        segmentationAnalyzer.analyzeSpotsAroundSelectedPoints( selectedPoints );
+        segmentationAnalyzer.analyzeSpotsClosestToSelectedPoints( selectedPoints );
 
 
         // Show results jTableSpots

@@ -42,7 +42,7 @@ public class SegmentationAnalyzer< T extends RealType< T >>
         this.segmentationSettings = segmentationSettings;
     }
 
-    public void analyzeSpotsAroundSelectedPoints( SpotCollection selectedPoints )
+    public void analyzeSpotsClosestToSelectedPoints( SpotCollection selectedPoints )
     {
         // Initialise Results Table
         //
@@ -52,13 +52,13 @@ public class SegmentationAnalyzer< T extends RealType< T >>
 
         // Get spot locations and compute pair-wise distances for each selection region
         //
-        for (Spot spotRoi : selectedPoints.iterable(false)) {
+        for (Spot selectedPoint : selectedPoints.iterable(false)) {
 
             // Init a new row in the jTableSpots
             //
             List<String> tableRow = new ArrayList<>();
 
-            // Add metadata to jTableSpots
+            // Add metadata to table
             //
             tableRow.add(segmentationSettings.experimentalBatch);
             tableRow.add(segmentationSettings.experimentID);
@@ -68,28 +68,22 @@ public class SegmentationAnalyzer< T extends RealType< T >>
             tableRow.add( Arrays.stream( segmentationSettings.spotChannelIndicesOneBased ).mapToObj( x -> "" + x )
                     .collect( Collectors.joining(",")));
 
-            /*
-            FileInfo fi = imp.getFileInfo();
-            String dir = imp.getFileInfo().directory;
-            String name = imp.getFileInfo().fileName;
-            */
 
-
-            // Add selected region center to the jTableSpots
+            // Add selected region center to the table
             //
             for (int d = 0; d < 3; d++)
             {
-                tableRow.add(String.valueOf(spotRoi.getDoublePosition(d)));
+                tableRow.add(String.valueOf(selectedPoint.getDoublePosition(d)));
             }
 
-            // Find the closest spot in each channel
+            // Find the closest spot to the selected point in each channel
             //
             Spot[] closestSpotsTrackMateDoGMax = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
             Spot[] closestSpotsCenterOfMass = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
 
-            for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++) {
+            for ( int channelIndex = 0; channelIndex < segmentationSettings.spotChannelIndicesOneBased.length; channelIndex++) {
 
-                SpotCollection spotCollection = segmentationResults.models[iChannel].getSpots();
+                SpotCollection spotCollection = segmentationResults.models[channelIndex].getSpots();
 
                 /*
                 // print all spots
@@ -100,21 +94,21 @@ public class SegmentationAnalyzer< T extends RealType< T >>
                     log("SPOT: "+pSpot.toString());
                 }*/
 
-                int frame = 0; // 0-based
-                Spot spot = spotCollection.getClosestSpot(spotRoi, frame, false);
+                int frame = 0; // 0-based time point
+                Spot spot = spotCollection.getClosestSpot(selectedPoint, frame, false);
 
                 if ( spot != null ) {
 
-                    Spot spotCenterOfMass = computeCenterOfMass(spot, iChannel, segmentationSettings.backgrounds[iChannel]);
+                    Spot spotCenterOfMass = computeCenterOfMass(spot, channelIndex, segmentationSettings.backgrounds[channelIndex]);
 
-                    // Add position to jTableSpots
+                    // Add LoG based position to table
                     //
                     for (int d = 0; d < 3; d++)
                     {
                         tableRow.add(String.valueOf(spot.getDoublePosition(d)));
                     }
 
-                    // Add center of mass to jTableSpots
+                    // Add center of mass to table
                     //
                     for (int d = 0; d < 3; d++)
                     {
@@ -123,8 +117,8 @@ public class SegmentationAnalyzer< T extends RealType< T >>
 
                     // Remember positions for distance computations
                     //
-                    closestSpotsTrackMateDoGMax[iChannel] = spot;
-                    closestSpotsCenterOfMass[iChannel] = spotCenterOfMass;
+                    closestSpotsTrackMateDoGMax[channelIndex] = spot;
+                    closestSpotsCenterOfMass[channelIndex] = spotCenterOfMass;
 
                 }
                 else
@@ -139,23 +133,21 @@ public class SegmentationAnalyzer< T extends RealType< T >>
 
             // Compute pair-wise distances and add to jTableSpots
             //
-            computePairWiseDistancesAndAddToTable(tableRow, closestSpotsTrackMateDoGMax);
-            computePairWiseDistancesAndAddToTable(tableRow, closestSpotsCenterOfMass);
+            computePairWiseDistances(tableRow, closestSpotsTrackMateDoGMax);
+            computePairWiseDistances(tableRow, closestSpotsCenterOfMass);
 
             // Add the whole row to actual jTableSpots
             //
             segmentationResults.SpotsTable.addRow(tableRow.toArray(new Object[tableRow.size()]));
 
         } // selected region loop
-
     }
 
-
-    public void computePairWiseDistancesAndAddToTable(List<String> tableRow, Spot[] spots)
+    public void computePairWiseDistances(List<String> tableRow, Spot[] spots)
     {
         for ( int i = 0; i < spots.length - 1; i++ )
         {
-            for ( int j = i+1; j < spots.length; j++ )
+            for ( int j = i + 1; j < spots.length; j++ )
             {
                 Double distance = Math.sqrt(spots[i].squareDistanceTo(spots[j]));
                 tableRow.add(String.valueOf(distance));
@@ -235,7 +227,6 @@ public class SegmentationAnalyzer< T extends RealType< T >>
                 sumDim[2]/sumVal,
                 radius,
                 quality);
-
 
         return spotCenterOfMass;
     }

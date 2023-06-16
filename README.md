@@ -19,45 +19,80 @@ Notes:
 
 ## Usage
 
-TODO...
+1. Open Fiji with the DNA FISH update site installed
+2. Open your DNA FISH image
+3. [ Plugins > Analyze > FISH Spots ]
 
 ### Channel setup
 
-TODO...
+Select which channels contain DNA FISH spots, if a channel does contain some other signal, please select "Nuclei". 
 
-### Background measurement
+Currently, the "Nuclei" channel is not used for anything. In future versions of the plugin it could be interesting to also support segmentation of the nuclei to make sure that only spots within one nucleus are related to each other. Please [write an issue](https://github.com/embl-cba/DNA-FISH/issues) if you are interested in this feature.
 
-TODO...
+![](documentation/channel-setup.png)
+
+### Background assignment
+
+Outline regions that contain unspecific intra-nuclear background signal.
+
+The mean intensity in those regions, in the respective channel, is used for background subtraction during the center of mass computation for the location of spots. 
+
+![](documentation/background-region-assignment.png)
+
 
 ### Find spots
 
-Spots are detected using TrackMate; help can be [found here](https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors).
+Spots are detected using TrackMate; details can be [found here](https://imagej.net/TrackMate_Algorithms#Spot_features_generated_by_the_spot_detectors).
+
+Please adapt the spot radii and channel thresholds until all spots are detected without detecting (too many) false positive spots. You can always change the parameters and click [ Find spots ] again to redo the spot detection. 
+
+Note that you could tolerate to have a few false positive spots when they are far enough away from the actual spots of interest, because you will manually select interest points close to which you will analyse spots. Thus, if a real spot in each channel is closer to the interest point than any false positive spot, the false positive spots will not be taken into account for the analysis.
+
+
+![](documentation/spot-detection.png)
+
+You can restrict the spot detection by placing a ROI on the image before clicking [ Find spots ]. Note that this will only restrict the spot detection in 2D. There currently is no way to restrict along the z-axis.
+
+![](documentation/roi-spot-detection.png)
 
 
 ### Analyze spots
 
-##### Select spot region of interest 
+##### Select spot regions of interest 
 
-Using ImageJ's point selection tool mark the regions in which FISH spots should be analyzed (see below). 
+The aim of this plugin is to measure spot distances in different channels. To tell the algorithm where in the image to measure those distances use ImageJ's multi-point selection tool mark the regions in which FISH spots should be analyzed (see below). 
 
-The aim is to measure spot distances in different channels.
+The logic here is that the algorithm will compute pair-wise distances between the spots in all channels that are **closest** to the selected point.
 
 For example, in the below screenshot the manually placed cross informs the algorithm that it should measure the distances between the two spots in the center of the image, because they are the two the spots that are closest to the cross. 
 
-TODO: add screenshot
+![](documentation/spot-region-selection.png)
 
-It is *not important* to place these points very exactly, because the algorithm will just use these annotations to identify the regions in which it should detect the FISH spots.
+It is *not important* to place these points very exactly, because the algorithm will just use these annotations to identify the regions in which it should measure the FISH spot distances. 
 
-However care must be take that really the spots of interest are the two closest to the selected region.
-For example, one could imagine that a spot at the border of a nucleus is closer to a spot in the neighboring nucleus than to the corresponding spot in the same nucleus. There are two approaches to handle this:
+In general the idea is to place many positions in the image and only then click [ Analyze spots ], as this will trigger the batch analysis of the spots in all the selected regions.
+
+![](documentation/multi-region-selection.png)
+
+
+However, care must be taken that really the spots of interest are the two closest to the selected region. For example, one could imagine that a spot at the border of a nucleus is closer to a spot in the neighboring nucleus than to the corresponding spot in the same nucleus. There are two approaches to handle this:
 
 1. place the cross not on the spot that is close the edge of the nucleus, but rather between the two spots that belong to each other
 2. during the spot detection (s.a.) draw a ROI around the nucleus of interest as this will then only detect the spots in this nucleus
 
-
-##### Perform distance measurements 
+##### Perform and QC distance measurements 
 
 Upon pressing the **[ Analyze spots ]** button, the plugin will, for each of the manually selected points, find the *closest* spot in each channel, measure its position and measure the distances between the spots in the different channels. 
+
+This will result in a table where each row corresponds to one selected region. Clicking on the table row will highlight all FISH spots that were used for the corresponding distance measurements and thus allow you to visually QC the analysis.
+
+![](documentation/qc-via-table.png)
+
+The table will contain the following columns:
+
+TODO
+
+## Further information
 
 ### TrackMate_DoG
 
