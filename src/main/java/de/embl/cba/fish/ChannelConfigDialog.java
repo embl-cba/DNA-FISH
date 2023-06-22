@@ -11,7 +11,7 @@ public class ChannelConfigDialog
     public enum ChannelType
     {
         FISHSpots,
-        Nuclei
+        Other
     }
 
     private final ImagePlus imp;

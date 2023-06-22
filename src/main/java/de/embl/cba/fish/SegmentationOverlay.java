@@ -61,13 +61,16 @@ public class SegmentationOverlay implements ImageListener {
     {
         selectionModel.clearSpotSelection();
 
-        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
+        final int numSpotChannels = segmentationSettings.spotChannelIndicesOneBased.length;
+
+        for ( int iChannel = 0; iChannel < numSpotChannels; iChannel++ )
         {
             // add spots to selectionModel only if this channel is active
             //
-            if (activeChannels[segmentationSettings.spotChannelIndicesOneBased[iChannel] - 1])
+            final int spotChannelIndexZeroBased = segmentationSettings.spotChannelIndicesOneBased[ iChannel ] - 1;
+            if ( activeChannels[ spotChannelIndexZeroBased ] )
             {
-                Model model = segmentationResults.models[iChannel];
+                Model model = segmentationResults.models[ iChannel ];
 				selectionModel.addSpotToSelection( model.getSpots().getClosestSpot( location, frame, false ) );
             }
         }
@@ -141,7 +144,6 @@ public class SegmentationOverlay implements ImageListener {
                     final int channelIndex = segmentationSettings.spotChannelIndicesOneBased[ iChannel ];
                     final Color color = channelIndexToColor.get( channelIndex );
                     final Double colorIndex = Double.valueOf( color.getRGB() );
-                    System.out.println("Channel: " + channelIndex + "; color: " + colorIndex);
                     spot.putFeature(ManualSpotColorAnalyzerFactory.FEATURE, colorIndex);
                     selectedChannelsModel.addSpotTo(spot, frame);
                 }

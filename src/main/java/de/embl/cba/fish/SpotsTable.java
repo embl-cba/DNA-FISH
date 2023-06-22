@@ -103,7 +103,8 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
         table.addMouseListener(this);
         table.addKeyListener(this);
 
-        //Create the scroll pane and add the jTableSpots to it.
+
+        //Create the scroll pane and add the table to it.
         scrollPane = new JScrollPane(table);
 
         //Add the scroll pane to this panel.
@@ -130,7 +131,7 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
     {
 
         if(table.getModel() == null) {
-            IJ.showMessage("There is not jTableSpots to be saved.");
+            IJ.showMessage("There is not table to be saved.");
             return;
         }
 
@@ -239,20 +240,20 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
 
     /*
     public void highlightSelectedTrack() {
-        int rs = jTableSpots.getSelectedRow();
-        int r = jTableSpots.convertRowIndexToModel(rs);
-        float x = new Float(jTableSpots.getModel().getValueAt(r, 1).toString());
-        float y = new Float(jTableSpots.getModel().getValueAt(r, 2).toString());
-        float z = new Float(jTableSpots.getModel().getValueAt(r, 3).toString());
-        int t = new Integer(jTableSpots.getModel().getValueAt(r, 4).toString());
-        int id = new Integer(jTableSpots.getModel().getValueAt(r, 5).toString());
+        int rs = table.getSelectedRow();
+        int r = table.convertRowIndexToModel(rs);
+        float x = new Float(table.getModel().getValueAt(r, 1).toString());
+        float y = new Float(table.getModel().getValueAt(r, 2).toString());
+        float z = new Float(table.getModel().getValueAt(r, 3).toString());
+        int t = new Integer(table.getModel().getValueAt(r, 4).toString());
+        int id = new Integer(table.getModel().getValueAt(r, 5).toString());
         ImagePlus imp = tracks.get(id).getImp();
         imp.setPosition(0,(int)z+1,t+1);
         Roi pr = new PointRoi(x,y);
         pr.setPosition(0,(int)z+1,t+1);
         imp.setRoi(pr);
         //log(" rs="+rs+" r ="+r+" x="+x+" y="+y+" z="+z+" t="+t);
-        //log("t="+jTableSpots.getModel().getValueAt(r, 5));
+        //log("t="+table.getModel().getValueAt(r, 5));
     }*/
 
     public double computeJTableColumnAverage(JTable table, int columnIndex)

@@ -23,5 +23,4 @@ public class SegmentationSettings
     public String treatment;
     public String pathName;
     public String fileName;
-    public int numSpotsChannels;
 }

@@ -54,7 +54,7 @@ public class SegmentationAnalyzer< T extends RealType< T >>
         //
         for (Spot selectedPoint : selectedPoints.iterable(false)) {
 
-            // Init a new row in the jTableSpots
+            // Init a new row in the table
             //
             List<String> tableRow = new ArrayList<>();
 
@@ -73,15 +73,16 @@ public class SegmentationAnalyzer< T extends RealType< T >>
             //
             for (int d = 0; d < 3; d++)
             {
-                tableRow.add(String.valueOf(selectedPoint.getDoublePosition(d)));
+                tableRow.add( String.valueOf( selectedPoint.getDoublePosition(d) ) );
             }
 
             // Find the closest spot to the selected point in each channel
             //
-            Spot[] closestSpotsTrackMateDoGMax = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
-            Spot[] closestSpotsCenterOfMass = new Spot[segmentationSettings.spotChannelIndicesOneBased.length];
+            final int numFISHChannels = segmentationSettings.spotChannelIndicesOneBased.length;
+            Spot[] closestSpotsTrackMateDoGMax = new Spot[ numFISHChannels ];
+            Spot[] closestSpotsCenterOfMass = new Spot[ numFISHChannels ];
 
-            for ( int channelIndex = 0; channelIndex < segmentationSettings.spotChannelIndicesOneBased.length; channelIndex++) {
+            for ( int channelIndex = 0; channelIndex < numFISHChannels; channelIndex++) {
 
                 SpotCollection spotCollection = segmentationResults.models[channelIndex].getSpots();
 
@@ -131,12 +132,12 @@ public class SegmentationAnalyzer< T extends RealType< T >>
             } // channel loop
 
 
-            // Compute pair-wise distances and add to jTableSpots
+            // Compute pair-wise distances and add to table
             //
             computePairWiseDistances(tableRow, closestSpotsTrackMateDoGMax);
             computePairWiseDistances(tableRow, closestSpotsCenterOfMass);
 
-            // Add the whole row to actual jTableSpots
+            // Add the whole row to actual table
             //
             segmentationResults.SpotsTable.addRow(tableRow.toArray(new Object[tableRow.size()]));
 

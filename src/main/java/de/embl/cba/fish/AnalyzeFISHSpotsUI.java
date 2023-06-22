@@ -92,18 +92,18 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
     private SegmentationOverlay segmentationOverlay;
 
     private ImagePlus imp;
-    private final long numFISHChannels;
+    private final int numFISHChannels;
     private final ArrayList< Double > channelBackgrounds;
 
     public AnalyzeFISHSpotsUI( ImagePlus imp, ArrayList< ChannelType > channelTypes, ArrayList< Double > channelBackgrounds )
     {
         this.imp = imp;
         this.channelTypes = channelTypes;
-        this.numFISHChannels = channelTypes.stream().filter( x -> x.equals( ChannelType.FISHSpots ) ).count();
+        this.numFISHChannels = ( int ) channelTypes.stream().filter( x -> x.equals( ChannelType.FISHSpots ) ).count();
         this.channelBackgrounds = channelBackgrounds;
 
         setSpotChannelIndices();
-        setSpotsChannelBackgrounds();
+        setSpotChannelBackgrounds();
     }
 
     public void showDialog()
@@ -237,15 +237,15 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
             File file = jFileChooser.getSelectedFile();
             if ( file != null )
             {
-                // load and show jTableSpots
+                // load and show table
                 //
                 segmentationResults.SpotsTable = new SpotsTable();
                 segmentationResults.SpotsTable.loadTable(file);
                 segmentationResults.SpotsTable.showTable();
 
-                // construct overlay from jTableSpots
+                // construct overlay from table
                 //
-                //segmentationResults.jTableSpots.segmentationOverlay = segmentationOverlay;
+                //segmentationResults.table.segmentationOverlay = segmentationOverlay;
             }
             else
             {
@@ -281,11 +281,11 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         segmentationAnalyzer.analyzeSpotsClosestToSelectedPoints( selectedPoints );
 
 
-        // Show results jTableSpots
+        // Show results table
         //
         segmentationResults.SpotsTable.showTable();
 
-        // Notify jTableSpots about overlay (such that it can change it, upon selection of a specific row)
+        // Notify table about overlay (such that it can change it, upon selection of a specific row)
         //
         segmentationResults.SpotsTable.segmentationOverlay = segmentationOverlay;
     }
@@ -304,30 +304,33 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
         segmentationSettings.fileName = imp.getOriginalFileInfo().fileName; // textFieldFileName.getText();
     }
 
-    private void setSpotsChannelBackgrounds()
+    private void setSpotChannelBackgrounds()
     {
-        segmentationSettings.backgrounds = new double[ segmentationSettings.numSpotsChannels ];
+        segmentationSettings.backgrounds = new double[ numFISHChannels ];
 
-        for ( int c = 0; c < segmentationSettings.numSpotsChannels; c++ )
+        for ( int channelIndex = 0; channelIndex < numFISHChannels; channelIndex++ )
         {
-            segmentationSettings.backgrounds[ c ] = channelBackgrounds.get( segmentationSettings.spotChannelIndicesOneBased[ c ] );
+            final int spotChannelIndex = segmentationSettings.spotChannelIndicesOneBased[ channelIndex ];
+            final Double background = channelBackgrounds.get( spotChannelIndex - 1 );
+            IJ.log( "Background value of channel " + spotChannelIndex + " is " + background );
+            segmentationSettings.backgrounds[ channelIndex ] = background;
         }
     }
 
     private void setSpotChannelIndices()
     {
-        segmentationSettings.spotChannelIndicesOneBased = IntStream.range(0, channelTypes.size())
-                .filter(channel -> channelTypes.get(channel).equals( ChannelType.FISHSpots) ).map( channel -> channel + 1 )
+        segmentationSettings.spotChannelIndicesOneBased = IntStream.range( 0, channelTypes.size() )
+                .filter( channel ->
+                        channelTypes.get( channel ).equals( ChannelType.FISHSpots ) )
+                .map( channel -> channel + 1 )
                 .toArray();
-        segmentationSettings.numSpotsChannels = segmentationSettings.spotChannelIndicesOneBased.length;
     }
 
     private void updateSpotRadii()
     {
-        segmentationSettings.spotRadii = new double[segmentationSettings.spotChannelIndicesOneBased.length][];
-
+        segmentationSettings.spotRadii = new double[ numFISHChannels ][];
         String[] spotRadii = textFieldSpotRadii.getText().split(";");
-        for ( int iChannel = 0; iChannel < segmentationSettings.spotChannelIndicesOneBased.length; iChannel++)
+        for ( int iChannel = 0; iChannel < numFISHChannels; iChannel++)
         {
             segmentationSettings.spotRadii[iChannel] = Utils.delimitedStringToDoubleArray(spotRadii[iChannel], ",");
         }
@@ -341,6 +344,12 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
                 imp,
                 segmentationResults,
                 segmentationSettings);
+
+        for ( int c = 0; c < segmentationResults.models.length; c++ )
+        {
+            final int spotChannelIndex = segmentationSettings.spotChannelIndicesOneBased[ c ];
+            IJ.log( "Detected " + segmentationResults.models[ c ].getSpots().getNSpots( false ) + " spots in channel " + spotChannelIndex );
+        }
 
         // Construct and show overlay
         //

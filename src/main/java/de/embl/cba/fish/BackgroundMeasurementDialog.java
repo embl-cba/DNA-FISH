@@ -39,15 +39,18 @@ public class BackgroundMeasurementDialog
         gd.showDialog();
         if ( gd.wasCanceled() ) return null;
 
-        final ArrayList< Double > backgrounds = quantifySelectedRois();
+        final ArrayList< Double > backgrounds = measureAverageMeanIntensityInSelectedRois();
 
         Utils.closeRoiManagerAndRemoveRoisFromImage( roiManager, imp );
 
         return backgrounds;
     }
 
-    private ArrayList< Double > quantifySelectedRois( )
+    private ArrayList< Double > measureAverageMeanIntensityInSelectedRois( )
     {
+        if ( roiManager.getCount() == 0 )
+            throw new UnsupportedOperationException("Please place at least one background ROI.");
+
         Roi[] rois = roiManager.getRoisAsArray();
 
         final ArrayList< ArrayList< Double > > backgroundMeasurements = new ArrayList<>();
@@ -56,24 +59,26 @@ public class BackgroundMeasurementDialog
             backgroundMeasurements.add( new ArrayList<>(  ) );
         }
 
-        for (Roi roi : rois)
+        for ( Roi roi : rois )
         {
-            for ( int c = 1; c <= imp.getNChannels(); c++ )
+            // for simplicity, measure background for all channels, even though we only need the
+            // background for the spot channels
+            for ( int channelIndex = 0; channelIndex < imp.getNChannels(); channelIndex++ )
             {
-                imp.setC( c );
+                imp.setC( channelIndex + 1 );
                 imp.setZ( roi.getZPosition() );
                 ImageProcessor currentProcessor = imp.getChannelProcessor();
                 currentProcessor.setRoi( roi );
                 double meanValue = currentProcessor.getStats().mean;
-                backgroundMeasurements.get( c - 1 ).add( meanValue );
-                System.out.println( String.format( "Roi: %s; channel: %d; intensity: %f", roi.getName(), c, meanValue ) );
+                backgroundMeasurements.get( channelIndex ).add( meanValue );
+                //System.out.println( String.format( "Roi: %s; channel: %d; intensity: %f", roi.getName(), channelIndex + 1, meanValue ) );
             }
         }
 
         final ArrayList< Double > averageBackgroundMeasurements = new ArrayList<>();
-        for ( int c = 0; c < imp.getNChannels(); c++ )
+        for ( int channelIndex = 0; channelIndex < imp.getNChannels(); channelIndex++ )
         {
-            final OptionalDouble average = backgroundMeasurements.get( c ).stream().mapToDouble( x -> x ).average();
+            final OptionalDouble average = backgroundMeasurements.get( channelIndex ).stream().mapToDouble( x -> x ).average();
             averageBackgroundMeasurements.add( average.getAsDouble() );
         }
 

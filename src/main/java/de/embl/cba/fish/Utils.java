@@ -116,7 +116,7 @@ public class Utils {
 	public static void addHelpButton( NonBlockingGenericDialog gd, final String section )
 	{
 		gd.addHelp( "https://github.com/tischi/fiji-plugin-FISH/blob/master/README.md#" + section );
-		gd.setHelpLabel( "README" );
+		gd.setHelpLabel( "Help" );
 	}
 
     public static void closeRoiManagerAndRemoveRoisFromImage( RoiManager roiManager, ImagePlus imp )
