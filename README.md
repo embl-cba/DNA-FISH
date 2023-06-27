@@ -31,6 +31,8 @@ Currently, the "Nuclei" channel is not used for anything. In future versions of 
 
 ![](documentation/channel-setup.png)
 
+There is no limit to the number of spot channels, typically the plugin is used for data with two or three spot channels.
+
 ### Background assignment
 
 Outline regions that contain unspecific intra-nuclear background signal.
@@ -38,7 +40,6 @@ Outline regions that contain unspecific intra-nuclear background signal.
 The mean intensity in those regions, in the respective channel, is used for background subtraction during the center of mass computation for the location of spots. 
 
 ![](documentation/background-region-assignment.png)
-
 
 ### Find spots
 
@@ -48,13 +49,17 @@ Please adapt the spot radii and channel thresholds until all spots are detected 
 
 Note that you could tolerate to have a few false positive spots when they are far enough away from the actual spots of interest, because you will manually select interest points close to which you will analyse spots. Thus, if a real spot in each channel is closer to the interest point than any false positive spot, the false positive spots will not be taken into account for the analysis.
 
-
 ![](documentation/spot-detection.png)
 
 You can restrict the spot detection by placing a ROI on the image before clicking [ Find spots ]. Note that this will only restrict the spot detection in 2D. There currently is no way to restrict along the z-axis.
 
 ![](documentation/roi-spot-detection.png)
 
+#### Three channels 
+
+As mentioned above the plugin can also be used with three spot channels.
+
+![](documentation/spot-detection-in-three-channels.png)
 
 ### Analyze spots
 
