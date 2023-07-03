@@ -278,6 +278,13 @@ public class AnalyzeFISHSpotsUI implements ActionListener, FocusListener {
 
         SpotCollection selectedPoints = getSelectedPointsFromRoiManager();
 
+        if ( selectedPoints.getNSpots( true ) == 0 )
+        {
+            IJ.showMessage( "Please select one or more regions using the multi-point selection tool,\nwhich should be selected already such that you just have to click into the image." );
+            return;
+        }
+
+
         segmentationAnalyzer.analyzeSpotsClosestToSelectedPoints( selectedPoints );
 
 
