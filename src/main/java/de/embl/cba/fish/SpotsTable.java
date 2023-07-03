@@ -14,12 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -93,19 +88,19 @@ public class SpotsTable extends JPanel implements MouseListener, KeyListener {
 
     public void setTableProperties()
     {
-        table.setPreferredScrollableViewportSize(new Dimension(500, 200));
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
-        table.setPreferredScrollableViewportSize(new Dimension(500, 200));
+        //table.setPreferredScrollableViewportSize(new Dimension(500, 200));
+        //table.setPreferredScrollableViewportSize(new Dimension(500, 200));
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
         table.setRowSelectionAllowed(true);
         table.addMouseListener(this);
         table.addKeyListener(this);
-
+        table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF ); // otherwise scrollPane will not work
 
         //Create the scroll pane and add the table to it.
-        scrollPane = new JScrollPane(table);
+        scrollPane = new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS );
 
         //Add the scroll pane to this panel.
         add(scrollPane);
